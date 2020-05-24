@@ -131,7 +131,8 @@ int csp_rtable_set_internal(uint8_t address, uint8_t netmask, csp_iface_t *ifc, 
 }
 
 void csp_rtable_free(void) {
-	for (csp_rtable_t * i = rtable; (i);) {
+    csp_rtable_t *i;
+	for (i = rtable; (i);) {
 		void * freeme = i;
 		i = i->next;
 		csp_free(freeme);
@@ -141,7 +142,8 @@ void csp_rtable_free(void) {
 
 void csp_rtable_iterate(csp_rtable_iterator_t iter, void * ctx)
 {
-    for (csp_rtable_t * route = rtable;
+    csp_rtable_t *route;
+    for (route = rtable;
          route && iter(ctx, route->address, route->netmask, &route->route);
          route = route->next);
 }

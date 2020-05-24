@@ -45,7 +45,8 @@ static csp_bin_sem_handle_t sport_lock;
 
 void csp_conn_check_timeouts(void) {
 #if (CSP_USE_RDP)
-	for (int i = 0; i < csp_conf.conn_max; i++) {
+    int i;
+	for (i = 0; i < csp_conf.conn_max; i++) {
 		if (arr_conn[i].state == CONN_OPEN) {
 			if (arr_conn[i].idin.flags & CSP_FRDP) {
 				csp_rdp_check_timeouts(&arr_conn[i]);
@@ -115,9 +116,11 @@ int csp_conn_init(void) {
 		return CSP_ERR_NOMEM;
 	}
 
-	for (int i = 0; i < csp_conf.conn_max; i++) {
+	int i;
+	for (i = 0; i < csp_conf.conn_max; i++) {
 		csp_conn_t * conn = &arr_conn[i];
-		for (int prio = 0; prio < CSP_RX_QUEUES; prio++) {
+		int prio;
+		for (prio = 0; prio < CSP_RX_QUEUES; prio++) {
 			conn->rx_queue[prio] = csp_queue_create(csp_conf.conn_queue_length, sizeof(csp_packet_t *));
 			if (conn->rx_queue[prio] == NULL) {
 				csp_log_error("rx_queue = csp_queue_create() failed");
@@ -149,10 +152,12 @@ void csp_conn_free_resources(void) {
 
     if (arr_conn) {
 
-	for (unsigned int i = 0; i < csp_conf.conn_max; i++) {
+    unsigned int i;
+	for (i = 0; i < csp_conf.conn_max; i++) {
             csp_conn_t * conn = &arr_conn[i];
 
-            for (int prio = 0; prio < CSP_RX_QUEUES; prio++) {
+            int prio;
+            for (prio = 0; prio < CSP_RX_QUEUES; prio++) {
                 if (conn->rx_queue[prio]) {
                     csp_queue_remove(conn->rx_queue[prio]);
                 }
@@ -186,7 +191,8 @@ csp_conn_t * csp_conn_find(uint32_t id, uint32_t mask) {
 
 	/* Search for matching connection */
 	id = (id & mask);
-	for (int i = 0; i < csp_conf.conn_max; i++) {
+	int i;
+	for (i = 0; i < csp_conf.conn_max; i++) {
 		csp_conn_t * conn = &arr_conn[i];
 		if ((conn->state == CONN_OPEN) && (conn->type == CONN_CLIENT) && ((conn->idin.ext & mask) == id)) {
 			return conn;
@@ -231,8 +237,8 @@ csp_conn_t * csp_conn_allocate(csp_conn_type_t type) {
 
 	/* Search for free connection */
 	csp_conn_t * conn = NULL;
-	int i = csp_conn_last_given;
-	for (int j = 0; j < csp_conf.conn_max; j++) {
+	int i = csp_conn_last_given, j;
+	for (j = 0; j < csp_conf.conn_max; j++) {
 		i = (i + 1) % csp_conf.conn_max;
 		conn = &arr_conn[i];
 		if (conn->state == CONN_CLOSED) {
@@ -485,7 +491,8 @@ int csp_conn_flags(csp_conn_t * conn) {
 #if (CSP_DEBUG)
 void csp_conn_print_table(void) {
 
-	for (unsigned int i = 0; i < csp_conf.conn_max; i++) {
+    unsigned int i;
+	for (i = 0; i < csp_conf.conn_max; i++) {
 		csp_conn_t * conn = &arr_conn[i];
 		printf("[%02u %p] S:%u, %u -> %u, %u -> %u, sock: %p\r\n",
 				i, conn, conn->state, conn->idin.src, conn->idin.dst,
@@ -501,9 +508,9 @@ void csp_conn_print_table(void) {
 int csp_conn_print_table_str(char * str_buf, int str_size) {
 
 	/* Display up to 10 connections */
-	unsigned int start = (csp_conf.conn_max > 10) ? (csp_conf.conn_max - 10) : 0;
+	unsigned int start = (csp_conf.conn_max > 10) ? (csp_conf.conn_max - 10) : 0, i;
 
-	for (unsigned int i = start; i < csp_conf.conn_max; i++) {
+	for (i = start; i < csp_conf.conn_max; i++) {
 		csp_conn_t * conn = &arr_conn[i];
 		char buf[100];
 		snprintf(buf, sizeof(buf), "[%02u %p] S:%u, %u -> %u, %u -> %u, sock: %p\n",

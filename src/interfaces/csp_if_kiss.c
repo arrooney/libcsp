@@ -54,7 +54,8 @@ int csp_kiss_tx(const csp_route_t * ifroute, csp_packet_t * packet) {
         const unsigned char esc_esc[] = {FESC, TFESC};
         const unsigned char * data = (unsigned char *) &packet->id.ext;
         ifdata->tx_func(driver, start, sizeof(start));
-	for (unsigned int i = 0; i < packet->length; i++, ++data) {
+    unsigned int i;
+	for (i = 0; i < packet->length; i++, ++data) {
 		if (*data == FEND) {
                     ifdata->tx_func(driver, esc_end, sizeof(esc_end));
                     continue;
