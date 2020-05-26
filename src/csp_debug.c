@@ -95,19 +95,21 @@ void do_csp_debug(csp_debug_level_t level, const char *format, ...) {
 	if (csp_debug_hook_func) {
 		csp_debug_hook_func(level, format, args);
 	} else {
-		csp_sys_set_color(color);
+//		csp_sys_set_color(color);
 #if (CSP_DEBUG_TIMESTAMP)
                 csp_timestamp_t ts;
                 csp_clock_get_time(&ts);
-                printf("%u.%06u ", ts.tv_sec, ts.tv_nsec / 1000U);
+                fprintf(stderr, "%u.%06u ", ts.tv_sec, ts.tv_nsec / 1000U);
+                fflush(stderr);
 #endif
-#ifdef __AVR__
-		vfprintf_P(stdout, format, args);
-#else
-		vprintf(format, args);
-#endif
-		printf("\r\n");
-		csp_sys_set_color(COLOR_RESET);
+//#ifdef __AVR__
+//		vfprintf_P(stdout, format, args);
+//#else
+		fprintf(stderr, format, args);
+		fflush(stderr);
+//#endif
+//		printf("\r\n");
+//		csp_sys_set_color(COLOR_RESET);
 	}
 
 	va_end(args);

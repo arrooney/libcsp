@@ -26,5 +26,12 @@
 #define CSP_LITTLE_ENDIAN 1
 /* #undef CSP_BIG_ENDIAN */
 #define LIBCSP_VERSION "1.6"
-
+#define MY_STRNLEN
+#ifdef MY_STRNLEN
+   static inline size_t strnlen (const char *string, size_t length)
+   {
+       char *ret = memchr (string, 0, length);
+       return ret ? ret - string : length;
+   }
+#endif
 #endif /* W_INCLUDE_CSP_CSP_AUTOCONFIG_H_WAF */
