@@ -92,9 +92,9 @@ void do_csp_debug(csp_debug_level_t level, const char *format, ...) {
 
 	/* If csp_debug_hook symbol is defined, pass on the message.
 	 * Otherwise, just print with pretty colors ... */
-	if (csp_debug_hook_func) {
-		csp_debug_hook_func(level, format, args);
-	} else {
+//	if (csp_debug_hook_func) {
+//		csp_debug_hook_func(level, format, args);
+//	} else {
 //		csp_sys_set_color(color);
 #if (CSP_DEBUG_TIMESTAMP)
                 csp_timestamp_t ts;
@@ -110,7 +110,7 @@ void do_csp_debug(csp_debug_level_t level, const char *format, ...) {
 //#endif
 //		printf("\r\n");
 //		csp_sys_set_color(COLOR_RESET);
-	}
+//	}
 
 	va_end(args);
 }
