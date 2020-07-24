@@ -176,10 +176,12 @@ void csp_kiss_rx(csp_iface_t * iface, const uint8_t * buf, size_t len, void * px
 			}
 
 			/* Skip the first char after FEND which is TNC_DATA (0x00) */
-			if (ifdata->rx_first) {
-				ifdata->rx_first = false;
-				break;
-			}
+
+            if (ifdata->rx_first) {
+                ifdata->rx_first = false;
+                break;
+            }
+
 
 			/* Valid data char */
 			((char *) &ifdata->rx_packet->id.ext)[ifdata->rx_length++] = inputbyte;

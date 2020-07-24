@@ -12,7 +12,7 @@
 #define CSP_DEBUG_TIMESTAMP 1
 #define CSP_USE_RDP 1
 #define CSP_USE_RDP_FAST_CLOSE 0
-#define CSP_USE_CRC32 0
+#define CSP_USE_CRC32 1
 #define CSP_USE_HMAC 1
 #define CSP_USE_XTEA 1
 #define CSP_USE_PROMISC 0
@@ -23,7 +23,7 @@
 #define CSP_LOG_LEVEL_INFO 1
 #define CSP_LOG_LEVEL_WARN 1
 #define CSP_LOG_LEVEL_ERROR 1
-#define CSP_LITTLE_ENDIAN 1
+#define CSP_BIG_ENDIAN 1
 /* #undef CSP_BIG_ENDIAN */
 #define LIBCSP_VERSION "1.6"
 #define MY_STRNLEN
