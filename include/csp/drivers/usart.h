@@ -30,6 +30,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include <csp/interfaces/csp_if_kiss.h>
+#include "HL_sci.h"
+#include "HL_sys_common.h"
+#include "HL_system.h"
 
 #if (CSP_WINDOWS)
 #include <Windows.h>
@@ -89,7 +92,7 @@ typedef void (*csp_usart_callback_t) (void * user_data, uint8_t *buf, size_t len
    @param[out] fd the opened file descriptor.
    @return #CSP_ERR_NONE on success, otherwise an error code.
 */
-int csp_usart_open(const csp_usart_conf_t *conf, csp_usart_callback_t rx_callback, void * user_data, csp_usart_fd_t * fd);
+int csp_usart_open(const csp_usart_conf_t *conf, csp_usart_callback_t rx_callback, void * user_data, sciBASE_t * fd);
 
 /**
    Write data on open UART.
@@ -99,7 +102,7 @@ int csp_usart_open(const csp_usart_conf_t *conf, csp_usart_callback_t rx_callbac
    @param[in] data_length length of \a data.
    @return number of bytes written on success, a negative value on failure.
 */
-int csp_usart_write(csp_usart_fd_t fd, const void * data, size_t data_length);
+int csp_usart_write(sciBASE_t* fd, const void * data, size_t data_length);
 
 /**
    Opens UART device and add KISS interface.

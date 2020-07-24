@@ -92,7 +92,8 @@ static int csp_hmac_done(hmac_state * hmac, uint8_t * out) {
 
 	/* Create the second HMAC vector vector */
 	uint8_t buf[CSP_SHA1_BLOCKSIZE];
-	for(unsigned int i = 0; i < sizeof(buf); i++) {
+	unsigned int i;
+	for(i = 0; i < sizeof(buf); i++) {
 		buf[i] = hmac->key[i] ^ 0x5C;
 	}
 

@@ -309,17 +309,13 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#include "HL_sci.h"
+#include "HL_sys_common.h"
+#include "HL_system.h"
 #include <csp/drivers/usart.h>
-
+#include "FreeRTOS.h"
+#include "os_semphr.h"
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include <unistd.h>
-#include <errno.h>
-#include <termios.h>
-#include <fcntl.h>
-#include <sys/time.h>
 
 #include <csp/csp.h>
 #include <csp/arch/csp_malloc.h>
@@ -331,6 +327,13 @@ typedef struct {
  csp_usart_fd_t fd;
  csp_thread_handle_t rx_thread;
 } usart_context_t;
+
+static int openPort(const char * device, sciBASE_t * return_fd) {
+
+    return_fd = sciREG3;
+
+    return CSP_ERR_NONE;
+}
 
 static void * usart_rx_thread(void * arg) {
 

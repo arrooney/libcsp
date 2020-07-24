@@ -154,59 +154,59 @@ int main(int argc, char * argv[]) {
 
     uint8_t address = 1;
     csp_debug_level_t debug_level = CSP_INFO;
-#if (CSP_HAVE_LIBSOCKETCAN)
-    const char * can_device = NULL;
-#endif
-    const char * kiss_device = NULL;
-#if (CSP_HAVE_LIBZMQ)
-    const char * zmq_device = NULL;
-#endif
+//#if (CSP_HAVE_LIBSOCKETCAN)
+//    const char * can_device = NULL;
+//#endif
+//    const char * kiss_device = NULL;
+//#if (CSP_HAVE_LIBZMQ)
+//    const char * zmq_device = NULL;
+//#endif
     const char * rtable = NULL;
     int opt;
-    while ((opt = getopt(argc, argv, "a:d:r:c:k:z:tR:h")) != -1) {
-        switch (opt) {
-            case 'a':
-                address = atoi(optarg);
-                break;
-            case 'd':
-                debug_level = atoi(optarg);
-                break;
-            case 'r':
-                server_address = atoi(optarg);
-                break;
-#if (CSP_HAVE_LIBSOCKETCAN)
-            case 'c':
-                can_device = optarg;
-                break;
-#endif
-            case 'k':
-                kiss_device = optarg;
-                break;
-#if (CSP_HAVE_LIBZMQ)
-            case 'z':
-                zmq_device = optarg;
-                break;
-#endif
-            case 't':
-                test_mode = true;
-                break;
-            case 'R':
-                rtable = optarg;
-                break;
-            default:
-                printf("Usage:\n"
-                       " -a <address>     local CSP address\n"
-                       " -d <debug-level> debug level, 0 - 6\n"
-                       " -r <address>     run client against server address\n"
-                       " -c <can-device>  add CAN device\n"
-                       " -k <kiss-device> add KISS device (serial)\n"
-                       " -z <zmq-device>  add ZMQ device, e.g. \"localhost\"\n"
-                       " -R <rtable>      set routing table\n"
-                       " -t               enable test mode\n");
-                exit(1);
-                break;
-        }
-    }
+//    while ((opt = getopt(argc, argv, "a:d:r:c:k:z:tR:h")) != -1) {
+//        switch (opt) {
+//            case 'a':
+//                address = atoi(optarg);
+//                break;
+//            case 'd':
+//                debug_level = atoi(optarg);
+//                break;
+//            case 'r':
+//                server_address = atoi(optarg);
+//                break;
+//#if (CSP_HAVE_LIBSOCKETCAN)
+//            case 'c':
+//                can_device = optarg;
+//                break;
+//#endif
+//            case 'k':
+//                kiss_device = optarg;
+//                break;
+//#if (CSP_HAVE_LIBZMQ)
+//            case 'z':
+//                zmq_device = optarg;
+//                break;
+//#endif
+//            case 't':
+//                test_mode = true;
+//                break;
+//            case 'R':
+//                rtable = optarg;
+//                break;
+//            default:
+//                printf("Usage:\n"
+//                       " -a <address>     local CSP address\n"
+//                       " -d <debug-level> debug level, 0 - 6\n"
+//                       " -r <address>     run client against server address\n"
+//                       " -c <can-device>  add CAN device\n"
+//                       " -k <kiss-device> add KISS device (serial)\n"
+//                       " -z <zmq-device>  add ZMQ device, e.g. \"localhost\"\n"
+//                       " -R <rtable>      set routing table\n"
+//                       " -t               enable test mode\n");
+//                exit(1);
+//                break;
+//        }
+//    }
 
     /* enable/disable debug levels */
     for (csp_debug_level_t i = 0; i <= CSP_LOCK; ++i) {
@@ -230,48 +230,48 @@ int main(int argc, char * argv[]) {
 
     /* Add interface(s) */
     csp_iface_t * default_iface = NULL;
-    if (kiss_device) {
-        csp_usart_conf_t conf = {
-            .device = kiss_device,
-            .baudrate = 115200, /* supported on all platforms */
-            .databits = 8,
-            .stopbits = 1,
-            .paritysetting = 0,
-            .checkparity = 0};
-        error = csp_usart_open_and_add_kiss_interface(&conf, CSP_IF_KISS_DEFAULT_NAME,  &default_iface);
-        if (error != CSP_ERR_NONE) {
-            csp_log_error("failed to add KISS interface [%s], error: %d", kiss_device, error);
-            exit(1);
-        }
-    }
-#if (CSP_HAVE_LIBSOCKETCAN)
-    if (can_device) {
-        error = csp_can_socketcan_open_and_add_interface(can_device, CSP_IF_CAN_DEFAULT_NAME, 0, false, &default_iface);
-        if (error != CSP_ERR_NONE) {
-            csp_log_error("failed to add CAN interface [%s], error: %d", can_device, error);
-            exit(1);
-        }
-    }
-#endif
-#if (CSP_HAVE_LIBZMQ)
-    if (zmq_device) {
-        error = csp_zmqhub_init(csp_get_address(), zmq_device, 0, &default_iface);
-        if (error != CSP_ERR_NONE) {
-            csp_log_error("failed to add ZMQ interface [%s], error: %d", zmq_device, error);
-            exit(1);
-        }
-    }
-#endif
-
-    if (rtable) {
-        error = csp_rtable_load(rtable);
-        if (error < 1) {
-            csp_log_error("csp_rtable_load(%s) failed, error: %d", rtable, error);
-            exit(1);
-        }
-    } else if (default_iface) {
-        csp_rtable_set(CSP_DEFAULT_ROUTE, 0, default_iface, CSP_NO_VIA_ADDRESS);
-    } else {
+//    if (kiss_device) {
+//        csp_usart_conf_t conf = {
+//            .device = kiss_device,
+//            .baudrate = 115200, /* supported on all platforms */
+//            .databits = 8,
+//            .stopbits = 1,
+//            .paritysetting = 0,
+//            .checkparity = 0};
+//        error = csp_usart_open_and_add_kiss_interface(&conf, CSP_IF_KISS_DEFAULT_NAME,  &default_iface);
+//        if (error != CSP_ERR_NONE) {
+//            csp_log_error("failed to add KISS interface [%s], error: %d", kiss_device, error);
+//            exit(1);
+//        }
+//    }
+//#if (CSP_HAVE_LIBSOCKETCAN)
+//    if (can_device) {
+//        error = csp_can_socketcan_open_and_add_interface(can_device, CSP_IF_CAN_DEFAULT_NAME, 0, false, &default_iface);
+//        if (error != CSP_ERR_NONE) {
+//            csp_log_error("failed to add CAN interface [%s], error: %d", can_device, error);
+//            exit(1);
+//        }
+//    }
+//#endif
+//#if (CSP_HAVE_LIBZMQ)
+//    if (zmq_device) {
+//        error = csp_zmqhub_init(csp_get_address(), zmq_device, 0, &default_iface);
+//        if (error != CSP_ERR_NONE) {
+//            csp_log_error("failed to add ZMQ interface [%s], error: %d", zmq_device, error);
+//            exit(1);
+//        }
+//    }
+//#endif
+//
+//    if (rtable) {
+//        error = csp_rtable_load(rtable);
+//        if (error < 1) {
+//            csp_log_error("csp_rtable_load(%s) failed, error: %d", rtable, error);
+//            exit(1);
+//        }
+//    } else if (default_iface) {
+//        csp_rtable_set(CSP_DEFAULT_ROUTE, 0, default_iface, CSP_NO_VIA_ADDRESS);
+//    } else {
         /* no interfaces configured - run server and client in process, using loopback interface */
         server_address = address;
     }

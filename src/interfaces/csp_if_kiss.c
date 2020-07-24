@@ -54,7 +54,8 @@ int csp_kiss_tx(const csp_route_t * ifroute, csp_packet_t * packet) {
         const unsigned char esc_esc[] = {FESC, TFESC};
         const unsigned char * data = (unsigned char *) &packet->id.ext;
         ifdata->tx_func(driver, start, sizeof(start));
-	for (unsigned int i = 0; i < packet->length; i++, ++data) {
+    unsigned int i;
+	for (i = 0; i < packet->length; i++, ++data) {
 		if (*data == FEND) {
                     ifdata->tx_func(driver, esc_end, sizeof(esc_end));
                     continue;
@@ -175,10 +176,12 @@ void csp_kiss_rx(csp_iface_t * iface, const uint8_t * buf, size_t len, void * px
 			}
 
 			/* Skip the first char after FEND which is TNC_DATA (0x00) */
-			if (ifdata->rx_first) {
-				ifdata->rx_first = false;
-				break;
-			}
+
+            if (ifdata->rx_first) {
+                ifdata->rx_first = false;
+                break;
+            }
+
 
 			/* Valid data char */
 			((char *) &ifdata->rx_packet->id.ext)[ifdata->rx_length++] = inputbyte;

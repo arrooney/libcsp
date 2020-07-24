@@ -61,7 +61,8 @@ int csp_buffer_init(void) {
 	if (!csp_buffers)
 		goto fail_queue;
 
-	for (unsigned int i = 0; i < csp_conf.buffers; i++) {
+	unsigned int i;
+	for (i = 0; i < csp_conf.buffers; i++) {
 		csp_skbf_t * buf = (void *) &csp_buffer_pool[i * skbfsize];
 		buf->skbf_addr = buf;
 		csp_queue_enqueue(csp_buffers, &buf, 0);

@@ -468,8 +468,8 @@ void csp_rdp_flush_all(csp_conn_t * conn) {
 int csp_rdp_check_ack(csp_conn_t * conn) {
 
 	/* Check all RX queues for spare capacity */
-	int avail = 1;
-	for (int prio = 0; prio < CSP_RX_QUEUES; prio++) {
+	int avail = 1, prio;
+	for (prio = 0; prio < CSP_RX_QUEUES; prio++) {
 		if (csp_conf.conn_queue_length - csp_queue_size(conn->rx_queue[prio]) <= 2 * (int32_t)conn->rdp.window_size) {
 			avail = 0;
 			break;
@@ -532,8 +532,8 @@ void csp_rdp_check_timeouts(csp_conn_t * conn) {
 	 * MESSAGE TIMEOUT:
 	 * Check each outgoing message for TX timeout
 	 */
-	int count = csp_queue_size(conn->rdp.tx_queue);
-	for (int i = 0; i < count; i++) {
+	int count = csp_queue_size(conn->rdp.tx_queue), i;
+	for (i = 0; i < count; i++) {
 
 		rdp_packet_t * packet;
 		if ((csp_queue_dequeue_isr(conn->rdp.tx_queue, &packet, &pdTrue) != CSP_QUEUE_OK) || packet == NULL) {
