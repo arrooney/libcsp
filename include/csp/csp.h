@@ -69,7 +69,7 @@ static inline void csp_conf_get_defaults(csp_conf_t * conf) {
 	conf->hostname = "hostname";
 	conf->model = "model";
 	conf->revision = "resvision";
-	conf->conn_max = 10;
+	conf->conn_max =10;
 	conf->conn_queue_length = 10;
 	conf->fifo_length = 25;
 	conf->port_max_bind = 24;

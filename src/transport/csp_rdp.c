@@ -533,7 +533,7 @@ void csp_rdp_check_timeouts(csp_conn_t * conn) {
 	 * Check each outgoing message for TX timeout
 	 */
 	int count = csp_queue_size(conn->rdp.tx_queue), i;
-	for (i = 0; i < count; i++) {
+	for (i = 0; i < count; i++) { // arrooney something is fucked here
 
 		rdp_packet_t * packet;
 		if ((csp_queue_dequeue_isr(conn->rdp.tx_queue, &packet, &pdTrue) != CSP_QUEUE_OK) || packet == NULL) {
