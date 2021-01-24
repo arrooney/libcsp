@@ -42,9 +42,10 @@ enum cfp_frame_t {
 	CFP_MORE = 1
 };
 
-int csp_can_rx(csp_iface_t *iface, uint32_t id, const uint8_t *data, uint8_t dlc, CSP_BASE_TYPE *task_woken)
+int csp_can_rx(csp_iface_t *iface, uint32_t id, const uint8_t *data, uint32_t dlc, CSP_BASE_TYPE *task_woken)
 {
 	/* Test: random packet loss */
+    uint32_t rem;
         if (0) {
 		int random = rand();
 		if (random < RAND_MAX * 0.00005) {
@@ -54,9 +55,10 @@ int csp_can_rx(csp_iface_t *iface, uint32_t id, const uint8_t *data, uint8_t dlc
 	}
 
 	/* Bind incoming frame to a packet buffer */
+    uint32_t type1 = CFP_TYPE(id);
 	csp_can_pbuf_element_t * buf = csp_can_pbuf_find(id, CFP_ID_CONN_MASK, task_woken);
 	if (buf == NULL) {
-		if (CFP_TYPE(id) == CFP_BEGIN) {
+		if (type1 == CFP_BEGIN) {
 			buf = csp_can_pbuf_new(id, task_woken);
 			if (buf == NULL) {
 				//csp_log_warn("No available packet buffer for CAN");
@@ -72,8 +74,8 @@ int csp_can_rx(csp_iface_t *iface, uint32_t id, const uint8_t *data, uint8_t dlc
 
 	/* Reset frame data offset */
 	uint8_t offset = 0;
-
-	switch (CFP_TYPE(id)) {
+	uint8_t type = CFP_TYPE(id);
+	switch (type) {
 
 	case CFP_BEGIN:
 
@@ -130,7 +132,9 @@ int csp_can_rx(csp_iface_t *iface, uint32_t id, const uint8_t *data, uint8_t dlc
 	case CFP_MORE:
 
 		/* Check 'remain' field match */
-		if (CFP_REMAIN(id) != buf->remain - 1) {
+
+	    rem = CFP_REMAIN(id);
+		if (rem != buf->remain - 1) {
 			//csp_log_error("CAN frame lost in CSP packet");
 			csp_can_pbuf_free(buf, task_woken);
 			iface->frame++;
@@ -235,7 +239,7 @@ int csp_can_tx(const csp_route_t * ifroute, csp_packet_t *packet)
                       CFP_MAKE_ID(ident) |
                       CFP_MAKE_TYPE(CFP_MORE) |
                       CFP_MAKE_REMAIN((packet->length - tx_count - bytes + MAX_BYTES_IN_CAN_FRAME - 1) / MAX_BYTES_IN_CAN_FRAME));
-
+		uint32_t type = CFP_TYPE(id);
 		/* Increment tx counter */
 		tx_count += bytes;
 

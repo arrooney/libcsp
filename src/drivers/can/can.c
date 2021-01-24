@@ -24,7 +24,7 @@ xQueueHandle canData;
 
 typedef struct can_frame {
     uint32_t id;
-    uint8_t dlc;
+    uint32_t dlc;
     uint8_t data[8];
 } can_frame_t;
 
@@ -45,7 +45,8 @@ static int csp_can_tx_frame(void * driver_data, uint32_t id, const uint8_t * dat
         return CSP_ERR_INVAL;
     }
     id = id | 0b01100000000000000000000000000000;
-                //0x010834A7 0100
+                //0x010834A7 0100 17563654 //    0x6108340D on this side 01100001000010000011010000000101
+//    0x010C0002                01083400                                         00000001000011000000000000000110
     canBASE_t *canREG = canREG1;
     switch (dlc) {
     case 8:
@@ -73,6 +74,7 @@ static int csp_can_tx_frame(void * driver_data, uint32_t id, const uint8_t * dat
         canTransmit(canREG, canMESSAGE_BOX11, data);
         break;
     case 2:
+//        canREG1->IF1MCTL = 0x00001000U | (uint32)0x00000000U | (uint32)0x00000000U | (uint32)0x00000000U | (uint32)6U;
         canUpdateID(canREG, canMESSAGE_BOX13, id);
         canTransmit(canREG, canMESSAGE_BOX13, data);
         break;
@@ -89,6 +91,8 @@ int csp_can_open_and_add_interface(const char * ifname, csp_iface_t ** return_if
 {
     _enable_IRQ_interrupt_();
     canInit();
+    canEnableloopback(canREG1, External_Lbk);
+    canEnableloopback(canREG2, External_Lbk);
     if (ifname == NULL) {
         ifname = CSP_IF_CAN_DEFAULT_NAME;
     }
@@ -122,34 +126,11 @@ void canMessageNotification(canBASE_t *node, uint32 messageBox)
 {
     portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
     can_frame_t rxFrame;
+    uint32_t rxSize;
+
     rxFrame.id = canGetID(node, messageBox);
-    switch (messageBox) {
-    case 2:
-        rxFrame.dlc = 8;
-        break;
-    case 4:
-        rxFrame.dlc = 7;
-        break;
-    case 6:
-        rxFrame.dlc = 6;
-        break;
-    case 8:
-        rxFrame.dlc = 5;
-        break;
-    case 10:
-        rxFrame.dlc = 4;
-        break;
-    case 12:
-        rxFrame.dlc = 3;
-        break;
-    case 14:
-        rxFrame.dlc = 2;
-        break;
-    case 16:
-        rxFrame.dlc = 1;
-        break;
-    }
-    canGetData(node, messageBox, rxFrame.data);
-    xQueueSendToBackFromISR( canData, &rxFrame, &xHigherPriorityTaskWoken );
+    canGetData(node, messageBox, rxFrame.data, &rxSize);
+    rxFrame.dlc = rxSize;
+    xQueueSendToBackFromISR(canData, &rxFrame, &xHigherPriorityTaskWoken);
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
