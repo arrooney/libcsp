@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015  University of Alberta
+ * Copyright (C) 2021  University of Alberta
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -16,19 +16,17 @@
  * @author Andrew Rooney
  * @date 2020-07-23
  */
+#include <FreeRTOS.h>
+#include <os_semphr.h>
+
+#include <csp/csp.h>
+#include <csp/drivers/usart.h>
+#include <csp/arch/csp_malloc.h>
+#include <csp/arch/csp_thread.h>
 
 #include "HL_sci.h"
 #include "HL_sys_common.h"
 #include "HL_system.h"
-#include <csp/drivers/usart.h>
-#include "FreeRTOS.h"
-#include "os_semphr.h"
-#include <stdio.h>
-//#include "intrensic.h"
-
-#include <csp/csp.h>
-#include <csp/arch/csp_malloc.h>
-#include <csp/arch/csp_thread.h>
 
 typedef struct {
     csp_usart_callback_t rx_callback;

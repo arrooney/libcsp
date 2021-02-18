@@ -1,8 +1,20 @@
 /*
- * can.c
+ * Copyright (C) 2021  University of Alberta
  *
- *  Created on: May 24, 2020
- *      Author: Andrew
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+/**
+ * @file can.c
+ * @author Andrew Rooney
+ * @date 2021-02-17
  */
 
 #include "csp/interfaces/csp_if_can.h"
@@ -20,7 +32,7 @@ typedef struct {
 } can_context_t;
 
 can_context_t * ctx;
-xQueueHandle canData;
+static xQueueHandle canData;
 
 typedef struct can_frame {
     uint32_t id;
@@ -36,7 +48,6 @@ void can_rx_thread(void * arg) {
             csp_can_rx(&ctx->iface, rxFrame.id, rxFrame.data, rxFrame.dlc, NULL);
         }
     }
-    return NULL;
 }
 
 static int csp_can_tx_frame(void * driver_data, uint32_t id, const uint8_t * data, uint8_t dlc)
@@ -45,40 +56,46 @@ static int csp_can_tx_frame(void * driver_data, uint32_t id, const uint8_t * dat
         return CSP_ERR_INVAL;
     }
     id = id | 0b01100000000000000000000000000000;
-                //0x010834A7 0100 17563654 //    0x6108340D on this side 01100001000010000011010000000101
-//    0x010C0002                01083400                                         00000001000011000000000000000110
     canBASE_t *canREG = canREG1;
     switch (dlc) {
     case 8:
+        while (canIsTxMessagePending(canREG, canMESSAGE_BOX1));
         canUpdateID(canREG, canMESSAGE_BOX1, id);
+        uint32_t x = canGetID(canREG, canMESSAGE_BOX1);
         canTransmit(canREG, canMESSAGE_BOX1, data);
         break;
     case 7:
+        while (canIsTxMessagePending(canREG, canMESSAGE_BOX3));
         canUpdateID(canREG, canMESSAGE_BOX3, id);
         canTransmit(canREG, canMESSAGE_BOX3, data);
         break;
     case 6:
+        while (canIsTxMessagePending(canREG, canMESSAGE_BOX5));
         canUpdateID(canREG, canMESSAGE_BOX5, id);
         canTransmit(canREG, canMESSAGE_BOX5, data);
         break;
     case 5:
+        while (canIsTxMessagePending(canREG, canMESSAGE_BOX7));
         canUpdateID(canREG, canMESSAGE_BOX7, id);
         canTransmit(canREG, canMESSAGE_BOX7, data);
         break;
     case 4:
+        while (canIsTxMessagePending(canREG, canMESSAGE_BOX9));
         canUpdateID(canREG, canMESSAGE_BOX9, id);
         canTransmit(canREG, canMESSAGE_BOX9, data);
         break;
     case 3:
+        while (canIsTxMessagePending(canREG, canMESSAGE_BOX11));
         canUpdateID(canREG, canMESSAGE_BOX11, id);
         canTransmit(canREG, canMESSAGE_BOX11, data);
         break;
     case 2:
-//        canREG1->IF1MCTL = 0x00001000U | (uint32)0x00000000U | (uint32)0x00000000U | (uint32)0x00000000U | (uint32)6U;
+        while (canIsTxMessagePending(canREG, canMESSAGE_BOX13));
         canUpdateID(canREG, canMESSAGE_BOX13, id);
         canTransmit(canREG, canMESSAGE_BOX13, data);
         break;
     case 1:
+        while (canIsTxMessagePending(canREG, canMESSAGE_BOX15));
         canUpdateID(canREG, canMESSAGE_BOX15, id);
         canTransmit(canREG, canMESSAGE_BOX15, data);
         break;
@@ -91,8 +108,7 @@ int csp_can_open_and_add_interface(const char * ifname, csp_iface_t ** return_if
 {
     _enable_IRQ_interrupt_();
     canInit();
-    canEnableloopback(canREG1, External_Lbk);
-    canEnableloopback(canREG2, External_Lbk);
+
     if (ifname == NULL) {
         ifname = CSP_IF_CAN_DEFAULT_NAME;
     }
@@ -106,7 +122,7 @@ int csp_can_open_and_add_interface(const char * ifname, csp_iface_t ** return_if
     ctx->iface.interface_data = &ctx->ifdata;
     ctx->iface.driver_data = ctx;
     ctx->ifdata.tx_func = csp_can_tx_frame;
-    ctx->ifdata.can = canREG1; // register to send on
+    ctx->ifdata.can = canREG2; // register to send on
     int res = csp_can_add_interface(&ctx->iface);
     if (res != CSP_ERR_NONE) {
         vPortFree(ctx);
