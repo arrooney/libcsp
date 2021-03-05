@@ -106,7 +106,6 @@ static int csp_can_tx_frame(void * driver_data, uint32_t id, const uint8_t * dat
 
 int csp_can_open_and_add_interface(const char * ifname, csp_iface_t ** return_iface)
 {
-    _enable_IRQ_interrupt_();
     canInit();
 
     if (ifname == NULL) {
@@ -145,7 +144,7 @@ void canMessageNotification(canBASE_t *node, uint32 messageBox)
     uint32_t rxSize;
 
     rxFrame.id = canGetID(node, messageBox);
-    canGetData(node, messageBox, rxFrame.data, &rxSize);
+    canGetDataAndSize(node, messageBox, rxFrame.data, &rxSize);
     rxFrame.dlc = rxSize;
     xQueueSendToBackFromISR(canData, &rxFrame, &xHigherPriorityTaskWoken);
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
