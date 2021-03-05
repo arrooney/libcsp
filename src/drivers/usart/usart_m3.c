@@ -82,7 +82,7 @@ int csp_usart_open(const csp_usart_conf_t *conf, csp_usart_callback_t rx_callbac
 }
 
 
-void sciNotification(sciBASE_t *sci, unsigned flags) {
+void csp_sciNotification(sciBASE_t *sci, unsigned flags) {
     portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
     xQueueSendToBackFromISR( sciData, &incomingData, &xHigherPriorityTaskWoken );
     sciReceive(sci, sizeof(uint8_t), &incomingData);
