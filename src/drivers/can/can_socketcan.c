@@ -119,7 +119,7 @@ static int csp_can_tx_frame(void * driver_data, uint32_t id, const uint8_t * dat
 	return CSP_ERR_NONE;
 }
 
-int csp_can_socketcan_open_and_add_interface(const char * device, const char * ifname, int bitrate, bool promisc, csp_iface_t ** return_iface)
+int csp_can_socketcan_open_and_add_interface(const char * device, const char * ifname, int bitrate, bool promisc, csp_iface_t ** return_iface, const uint32_t can_id, const uint32_t mask)
 {
 	if (ifname == NULL) {
 		ifname = CSP_IF_CAN_DEFAULT_NAME;
@@ -179,8 +179,8 @@ int csp_can_socketcan_open_and_add_interface(const char * device, const char * i
 	/* Set filter mode */
 	if (promisc == false) {
 
-		struct can_filter filter = {.can_id = CFP_MAKE_DST(csp_get_address()),
-						.can_mask = CFP_MAKE_DST((1 << CFP_HOST_SIZE) - 1)};
+		struct can_filter filter = {.can_id = can_id,
+						.can_mask = mask};
 
 		if (setsockopt(ctx->socket, SOL_CAN_RAW, CAN_RAW_FILTER, &filter, sizeof(filter)) < 0) {
 			csp_log_error("%s[%s]: setsockopt() failed, error: %s", __FUNCTION__, ctx->name, strerror(errno));
@@ -211,10 +211,10 @@ int csp_can_socketcan_open_and_add_interface(const char * device, const char * i
 	return CSP_ERR_NONE;
 }
 
-csp_iface_t * csp_can_socketcan_init(const char * device, int bitrate, bool promisc)
+csp_iface_t * csp_can_socketcan_init(const char * device, int bitrate, bool promisc, const uint32_t can_id, const uint32_t mask)
 {
 	csp_iface_t * return_iface;
-	int res = csp_can_socketcan_open_and_add_interface(device, CSP_IF_CAN_DEFAULT_NAME, bitrate, promisc, &return_iface);
+	int res = csp_can_socketcan_open_and_add_interface(device, CSP_IF_CAN_DEFAULT_NAME, bitrate, promisc, &return_iface, can_id, mask);
 	return (res == CSP_ERR_NONE) ? return_iface : NULL;
 }
 
