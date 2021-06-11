@@ -94,8 +94,11 @@ static void * socketcan_rx_thread(void * arg)
 		} else {
 			// Check to see if the ID is in the allowed list
 			int id = CFP_DST(frame.can_id);
+			csp_log_info("incoming dest id: %d\r\n", id);
 			for (int i = 0; i < ctx->id_list_len; i++) {
+				csp_log_info("checking id from list: %d\r\n", ctx->id_list[i]);
 				if (id == ctx->id_list[i]) {
+					csp_log_info("writing");
 					csp_can_rx(&ctx->iface, frame.can_id, frame.data, frame.can_dlc, NULL);
 					break;
 				}
