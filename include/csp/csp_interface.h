@@ -37,6 +37,8 @@ extern "C" {
 */
 #define CSP_IFLIST_NAME_MAX    10
 
+#define CSP_CAN_ID_LIST_MAX   16
+
 /**
    Interface Tx function.
 

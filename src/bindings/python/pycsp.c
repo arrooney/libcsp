@@ -815,7 +815,7 @@ static PyObject* pycsp_can_socketcan_init(PyObject *self, PyObject *args) {
         return NULL;
     }
 
-    int res = csp_can_socketcan_open_and_add_interface(ifc, CSP_IF_CAN_DEFAULT_NAME, bitrate, promisc, NULL);
+    int res = csp_can_socketcan_open_and_add_interface(ifc, CSP_IF_CAN_DEFAULT_NAME, bitrate, promisc, NULL, NULL, 0);
     if (res != CSP_ERR_NONE) {
         return PyErr_Error("csp_can_socketcan_open_and_add_interface()", res);
     }

@@ -44,7 +44,7 @@ extern "C" {
    @param[out] return_iface the added interface.
    @return The added interface, or NULL in case of failure.
 */
-int csp_can_socketcan_open_and_add_interface(const char * device, const char * ifname, int bitrate, bool promisc, csp_iface_t ** return_iface);
+int csp_can_socketcan_open_and_add_interface(const char * device, const char * ifname, int bitrate, bool promisc, csp_iface_t ** return_iface, const int id_list[], const int id_list_len);
 
 /**
    Initialize socketcan and add CSP interface.
@@ -55,7 +55,7 @@ int csp_can_socketcan_open_and_add_interface(const char * device, const char * i
    @param[in] promisc if \a true, receive all CAN frames. If \a false a filter is set on the CAN device, using csp_get_address().
    @return The added interface, or NULL in case of failure.
 */
-csp_iface_t * csp_can_socketcan_init(const char * device, int bitrate, bool promisc);
+csp_iface_t * csp_can_socketcan_init(const char * device, int bitrate, bool promisc, const int id_list[], const int id_list_len);
 
 /**
    Stop the Rx thread and free resources (testing).

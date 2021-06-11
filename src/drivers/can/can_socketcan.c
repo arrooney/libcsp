@@ -42,6 +42,8 @@ typedef struct {
 	csp_can_interface_data_t ifdata;
 	pthread_t rx_thread;
 	int socket;
+	int id_list[CSP_CAN_ID_LIST_MAX];
+	int id_list_len;
 } can_context_t;
 
 static void socketcan_free(can_context_t * ctx) {
@@ -86,8 +88,20 @@ static void * socketcan_rx_thread(void * arg)
 		/* Strip flags */
 		frame.can_id &= CAN_EFF_MASK;
 
-		/* Call RX callbacsp_can_rx_frameck */
-		csp_can_rx(&ctx->iface, frame.can_id, frame.data, frame.can_dlc, NULL);
+		if (ctx->id_list_len == 0) { // Not using promiscuous mode, or there is no list of allowed ID
+			csp_can_rx(&ctx->iface, frame.can_id, frame.data, frame.can_dlc, NULL);
+			/* Call RX callbacsp_can_rx_frameck */
+		} else {
+			// Check to see if the ID is in the allowed list
+			int id = CFP_DST(frame.can_id);
+			for (int i = 0; i < ctx->id_list_len; i++) {
+				if (id == ctx->id_list[i]) {
+					csp_can_rx(&ctx->iface, frame.can_id, frame.data, frame.can_dlc, NULL);
+					break;
+				}
+			}
+		}
+		
 	}
 
 	/* We should never reach this point */
@@ -119,7 +133,7 @@ static int csp_can_tx_frame(void * driver_data, uint32_t id, const uint8_t * dat
 	return CSP_ERR_NONE;
 }
 
-int csp_can_socketcan_open_and_add_interface(const char * device, const char * ifname, int bitrate, bool promisc, csp_iface_t ** return_iface)
+int csp_can_socketcan_open_and_add_interface(const char * device, const char * ifname, int bitrate, bool promisc, csp_iface_t ** return_iface, const int id_list[], const int id_list_len)
 {
 	if (ifname == NULL) {
 		ifname = CSP_IF_CAN_DEFAULT_NAME;
@@ -145,6 +159,18 @@ int csp_can_socketcan_open_and_add_interface(const char * device, const char * i
 	ctx->socket = -1;
 
 	strncpy(ctx->name, ifname, sizeof(ctx->name) - 1);
+	int idlen = id_list_len;
+	if (id_list_len > CSP_CAN_ID_LIST_MAX) {
+		csp_log_warn("%s[%s]: ID list too long, some IDs are ignored", __FUNCTION__, ctx->name);
+		idlen = CSP_CAN_ID_LIST_MAX;
+	}
+	if (id_list_len > 0 && id_list != NULL) {
+		memcpy(ctx->id_list, id_list, idlen);
+	} else if (id_list_len > 0 && id_list == NULL) {
+		csp_log_warn("%s[%s]: Ignoring ID list: length given with no list", __FUNCTION__, ctx->name);
+		idlen = 0;
+	}
+	ctx->id_list_len = idlen;
 	ctx->iface.name = ctx->name;
 	ctx->iface.interface_data = &ctx->ifdata;
 	ctx->iface.driver_data = ctx;
@@ -187,6 +213,7 @@ int csp_can_socketcan_open_and_add_interface(const char * device, const char * i
 			socketcan_free(ctx);
 			return CSP_ERR_INVAL;
 		}
+		ctx->id_list_len = 0; // ignore any list of allowed IDs
 	}
 
 	/* Add interface to CSP */
@@ -211,10 +238,10 @@ int csp_can_socketcan_open_and_add_interface(const char * device, const char * i
 	return CSP_ERR_NONE;
 }
 
-csp_iface_t * csp_can_socketcan_init(const char * device, int bitrate, bool promisc)
+csp_iface_t * csp_can_socketcan_init(const char * device, int bitrate, bool promisc, const int id_list[], const int id_list_len)
 {
 	csp_iface_t * return_iface;
-	int res = csp_can_socketcan_open_and_add_interface(device, CSP_IF_CAN_DEFAULT_NAME, bitrate, promisc, &return_iface);
+	int res = csp_can_socketcan_open_and_add_interface(device, CSP_IF_CAN_DEFAULT_NAME, bitrate, promisc, &return_iface, id_list, id_list_len);
 	return (res == CSP_ERR_NONE) ? return_iface : NULL;
 }
 
@@ -232,6 +259,8 @@ int csp_can_socketcan_stop(csp_iface_t *iface)
 		csp_log_error("%s[%s]: pthread_join() failed, error: %s", __FUNCTION__, ctx->name, strerror(errno));
 		return CSP_ERR_DRIVER;
 	}
-        socketcan_free(ctx);
+    
+	socketcan_free(ctx);
+
 	return CSP_ERR_NONE;
 }
