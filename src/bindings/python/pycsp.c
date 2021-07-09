@@ -1,7 +1,7 @@
 /*
 Cubesat Space Protocol - A small network-layer protocol designed for Cubesats
 Copyright (C) 2012 GomSpace ApS (http://www.gomspace.com)
-Copyright (C) 2012 AAUSAT3 Project (http://aausat3.space.aau.dk) 
+Copyright (C) 2012 AAUSAT3 Project (http://aausat3.space.aau.dk)
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -146,7 +146,7 @@ static PyObject* pycsp_init(PyObject *self, PyObject *args) {
     conf.hostname = hostname;
     conf.model = model;
     conf.revision = revision;
-    
+
     int res = csp_init(&conf);
     if (res != CSP_ERR_NONE) {
         return PyErr_Error("csp_init()", res);
@@ -936,6 +936,23 @@ static PyObject* pycsp_packet_set_data(PyObject *self, PyObject *args) {
     Py_RETURN_NONE;
 }
 
+static PyObject* pycsp_packet_set_flags(PyObject *self, PyObject *args) {
+    PyObject* packet_capsule;
+    uint8_t flags;
+    if (!PyArg_ParseTuple(args, "Ob", &packet_capsule, &flags)) {
+        return NULL; // TypeError is thrown
+    }
+
+    csp_packet_t * packet = get_obj_as_packet(packet_capsule, false);
+    if (packet == NULL) {
+        return NULL; // TypeError is thrown
+    }
+
+    packet->id.flags = flags;
+
+    Py_RETURN_NONE;
+}
+
 static PyObject* pycsp_packet_get_data(PyObject *self, PyObject *packet_capsule) {
     csp_packet_t * packet = get_obj_as_packet(packet_capsule, false);
     if (packet == NULL) {
@@ -1034,6 +1051,7 @@ static PyMethodDef methods[] = {
     {"packet_get_length",   pycsp_packet_get_length,   METH_O,       ""},
     {"packet_get_data",     pycsp_packet_get_data,     METH_O,       ""},
     {"packet_set_data",     pycsp_packet_set_data,     METH_VARARGS, ""},
+    {"packet_set_flags",    pycsp_packet_set_flags,    METH_VARARGS, ""},
     {"print_connections",   pycsp_print_connections,   METH_NOARGS,  ""},
     {"print_routes",        pycsp_print_routes,        METH_NOARGS,  ""},
     {"get_buffer_stats",    pycsp_get_buffer_stats,    METH_NOARGS,  ""},
@@ -1134,7 +1152,6 @@ PyMODINIT_FUNC PyInit_libcsp_py3(void) {
     PyModule_AddIntConstant(m, "CSP_NODE_MAC", CSP_NODE_MAC);
     PyModule_AddIntConstant(m, "CSP_NO_VIA_ADDRESS", CSP_NO_VIA_ADDRESS);
     PyModule_AddIntConstant(m, "CSP_MAX_TIMEOUT", CSP_MAX_TIMEOUT);
-    
+
     return m;
 }
-
